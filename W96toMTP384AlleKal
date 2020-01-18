@@ -1,0 +1,39 @@
+Option Explicit
+
+Sub Spotauswahlw96alleKal()
+       
+    Dim nächsteZeile As Integer
+        nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row + 1
+        If nächsteZeile < 9 Then
+            nächsteZeile = 9
+        End If
+
+    Dim Zahl As Integer
+    Dim BuchstAlsZahl As Integer
+    
+    For Zahl = 1 To 12
+        For BuchstAlsZahl = 1 To 8
+            nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row + 1
+                If nächsteZeile < 9 Then
+                    nächsteZeile = 9
+                End If
+        
+            'ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile), 2) = sb(BuchstAlsZahl * 2 - 1) & Zahl * 2 - 1
+            'ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 1), 2) = sb(BuchstAlsZahl * 2 - 1) & Zahl * 2
+            'ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 2), 2) = sb(BuchstAlsZahl * 2) & Zahl * 2 - 1
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile), 2) = sb(BuchstAlsZahl * 2) & Zahl * 2
+        Next BuchstAlsZahl
+    Next Zahl
+     
+End Sub
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+  
+
+
+
+
+
