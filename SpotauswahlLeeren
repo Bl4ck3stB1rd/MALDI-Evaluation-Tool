@@ -1,0 +1,25 @@
+Option Explicit
+
+Sub Spotauswahl()
+    Dim i As Integer
+        i = 1
+    Dim j As Integer
+        j = 1
+    Dim ersteZeile As Integer
+        ersteZeile = 8
+
+    ThisWorkbook.Sheets("Datenimport").Range("B9:B2000") = ""
+    
+    'For i = 1 To 24
+    '    For j = 0 To 15
+    '        ThisWorkbook.Sheets("Datenimport").Cells((ersteZeile + i + (j * 24)), 2) = ""
+    '    Next j
+    'Next i
+   
+End Sub
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+
