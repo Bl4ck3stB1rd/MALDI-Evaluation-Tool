@@ -1,0 +1,37 @@
+Option Explicit
+
+Sub Spotauswahl()
+    Dim i As Integer
+        i = 1
+    Dim j As Integer
+        j = 1
+    Dim ersteZeile As Integer
+        ersteZeile = 8
+    Dim Zeile As String
+        Zeile = ThisWorkbook.Sheets("Datenimport").Cells(13, 6)
+      
+    Dim nächsteZeile As Integer
+        nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row
+      
+    With Sheets("Datenimport")
+    If .Cells(13, 6).Value = "A" Or .Cells(13, 6).Value = "B" Or .Cells(13, 6).Value = "C" Or .Cells(13, 6).Value = "D" Or .Cells(13, 6).Value = "E" Or .Cells(13, 6).Value = "F" Or .Cells(13, 6).Value = "G" Or .Cells(13, 6).Value = "H" Or .Cells(13, 6).Value = "I" Or .Cells(13, 6).Value = "J" Or .Cells(13, 6).Value = "K" Or .Cells(13, 6).Value = "L" Or .Cells(13, 6).Value = "M" Or .Cells(13, 6).Value = "N" Or .Cells(13, 6).Value = "O" Or .Cells(13, 6).Value = "P" Then
+        For i = 1 To 24
+        ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + i), 2) = Zeile & i
+        Next i
+    Else
+        MsgBox "Eingabe ungültig. Buchstabenbereich beachten."
+    End If
+    End With
+      
+    If ThisWorkbook.Sheets("Datenimport").Cells(7, 2) > 384 Then
+        MsgBox "Anzahl der Spots ist größer als 384! Bitte Auswahl überprüfen."
+    End If
+
+End Sub
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+    
+
