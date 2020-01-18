@@ -1,0 +1,410 @@
+Option Explicit
+
+Sub Adduktauswertung()
+    'Dim kopiertesheets As Variant
+    '    kopiertesheets = ThisWorkbook.Worksheets("Adduktauswahl").Cells(1, 2)
+    'Dim Bezeichnung As String
+    '    Bezeichnung = ThisWorkbook.Worksheets("Adduktauswahl").Cells(13, 1)
+    'Dim exMass As Double
+    '    exMass = ThisWorkbook.Worksheets("Adduktauswahl").Cells(13, 2)
+    'Dim massVer As Double
+    '    massVer = ThisWorkbook.Worksheets("Adduktauswahl").Cells(13, 3)
+    'Dim massAbw As Double
+    '    massAbw = ThisWorkbook.Worksheets("Adduktauswahl").Cells(13, 4)
+    'Dim Matrix As String
+    '    Matrix = ThisWorkbook.Worksheets("Adduktauswahl").Cells(13, 5)
+    'Dim Addukt As String
+    '    Addukt = "[M] = [" & Bezeichnung & "]"
+    'MsgBox "Debug:" & vbCrLf & "Kopierte Sheets = " & kopiertesheets & vbCrLf & "Bezeichnung = " & Bezeichnung & vbCrLf & "Exakte Masse = " & exMass & vbCrLf & "Massenverschiebung = " & massVer & vbCrLf & "Massenabweichung = " & massAbw & vbCrLf & "Adduktbezeichnung: " & Addukt
+    
+    'Dim MaxZeilenzahl As Integer
+    '    MaxZeilenzahl = ThisWorkbook.Sheets("Adduktauswahl").Cells(Rows.Count) + 1
+    
+    'With ThisWorkbook.Sheets("Adduktauswahl")
+        '.Range("A10:J" & .Cells(.Rows.Count, "A").End(x1Up).Row).ClearContents
+    'End With
+    ThisWorkbook.Sheets("Adduktauswahl").Range("A63:K10000").ClearContents
+    'Range(Cells(nächsteZeile, 1), Cells(nächsteZeile, 10)).Font.Bold = True
+    Range("A35:K10000").Font.Bold = False
+    ThisWorkbook.Sheets("Adduktauswahl").Cells(2, 2).Value = "0"
+    ThisWorkbook.Sheets("Adduktauswahl").Cells(3, 2).Value = "0"
+    ThisWorkbook.Sheets("Adduktauswahl").Cells(4, 2).Value = ""
+    ThisWorkbook.Sheets("Adduktauswahl").Range("A63:K10000").Interior.ColorIndex = xlNone
+        
+    'Sheet Auswertung leeren:
+    ThisWorkbook.Sheets("Auswertung").Range("A2:K10000").ClearContents
+    'Range(Cells(nächsteZeile, 1), Cells(nächsteZeile, 10)).Font.Bold = True
+    Range("A2:K10000").Font.Bold = False
+    'ThisWorkbook.Sheets("Auswertung").Cells(7, 2).Value = "0"
+    ThisWorkbook.Sheets("Auswertung").Range("A2:K10000").Interior.ColorIndex = xlNone
+    ThisWorkbook.Sheets("Auswertung").Cells(1, 1) = "Anzahl hinzugefügter Gruppen:"
+    ThisWorkbook.Sheets("Auswertung").Cells(1, 1).Font.Bold = True
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(1, 2) = "0"
+    
+    ThisWorkbook.Sheets("Auswertung").Range("N1:ASB10000").ClearContents
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(5, 12) = "m/z"
+    ThisWorkbook.Sheets("Auswertung").Cells(5, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Auswertung").Cells(6, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(7, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(8, 12) = "Median"
+    ThisWorkbook.Sheets("Auswertung").Cells(9, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(10, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(11, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(12, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(13, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Auswertung").Cells(14, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(15, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Auswertung").Cells(1, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(2, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(3, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(4, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(5, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(6, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(7, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(8, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(9, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(10, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(11, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(12, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(13, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(14, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(15, 13) = "0"
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(20, 12) = "Intens."
+    ThisWorkbook.Sheets("Auswertung").Cells(20, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Auswertung").Cells(21, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(22, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(23, 12) = "Median"
+    ThisWorkbook.Sheets("Auswertung").Cells(24, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(25, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(26, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(27, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(28, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Auswertung").Cells(29, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(30, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Auswertung").Cells(16, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(17, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(18, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(19, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(20, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(21, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(22, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(23, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(24, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(25, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(26, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(27, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(28, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(29, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(30, 13) = "0"
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(35, 12) = "S/N"
+    ThisWorkbook.Sheets("Auswertung").Cells(35, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Auswertung").Cells(36, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(37, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(38, 12) = "Median"
+    ThisWorkbook.Sheets("Auswertung").Cells(39, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(40, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(41, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(42, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(43, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Auswertung").Cells(44, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(45, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Auswertung").Cells(31, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(32, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(33, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(34, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(35, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(36, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(37, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(38, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(39, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(40, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(41, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(42, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(43, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(44, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(45, 13) = "0"
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(50, 12) = "Res."
+    ThisWorkbook.Sheets("Auswertung").Cells(50, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Auswertung").Cells(51, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(52, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(53, 12) = "Median"
+    ThisWorkbook.Sheets("Auswertung").Cells(54, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(55, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(56, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(57, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(58, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Auswertung").Cells(59, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(60, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Auswertung").Cells(46, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(47, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(48, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(49, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(50, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(51, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(52, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(53, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(54, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(55, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(56, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(57, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(58, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(59, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(60, 13) = "0"
+    
+    ThisWorkbook.Sheets("Auswertung").Cells(65, 12) = "Area"
+    ThisWorkbook.Sheets("Auswertung").Cells(65, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Auswertung").Cells(66, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(67, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(68, 12) = "Median"
+    ThisWorkbook.Sheets("Auswertung").Cells(69, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Auswertung").Cells(70, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(71, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Auswertung").Cells(72, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(73, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Auswertung").Cells(74, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Auswertung").Cells(75, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Auswertung").Cells(61, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(62, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(63, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(64, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(65, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(66, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(67, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(68, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(69, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(70, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(71, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(72, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(73, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(74, 13) = "0"
+    ThisWorkbook.Sheets("Auswertung").Cells(75, 13) = "0"
+    
+    'Sheet Gesamtauswertung leeren:
+    ThisWorkbook.Sheets("Gesamtauswertung").Range("A2:K10000").ClearContents
+    'Range(Cells(nächsteZeile, 1), Cells(nächsteZeile, 10)).Font.Bold = True
+    Range("A2:K10000").Font.Bold = False
+    'ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, 2).Value = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Range("A2:K10000").Interior.ColorIndex = xlNone
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(1, 1) = "Anzahl hinzugefügter Gruppen:"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(1, 1).Font.Bold = True
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(1, 2) = "0"
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Range("N1:ASB10000").ClearContents
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, 12) = "m/z"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(6, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(8, 12) = "Median"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(9, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(10, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(11, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(12, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(13, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(14, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(15, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(1, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(2, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(3, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(4, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(6, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(8, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(9, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(10, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(11, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(12, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(13, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(14, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(15, 13) = "0"
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(20, 12) = "Intens."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(20, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(21, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(22, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(23, 12) = "Median"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(24, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(25, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(26, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(27, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(28, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(29, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(30, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(16, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(17, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(18, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(19, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(20, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(21, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(22, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(23, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(24, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(25, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(26, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(27, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(28, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(29, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(30, 13) = "0"
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(35, 12) = "S/N"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(35, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(36, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(37, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(38, 12) = "Median"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(39, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(40, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(41, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(42, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(43, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(44, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(45, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(31, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(32, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(33, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(34, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(35, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(36, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(37, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(38, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(39, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(40, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(41, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(42, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(43, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(44, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(45, 13) = "0"
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(50, 12) = "Res."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(50, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(51, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(52, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(53, 12) = "Median"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(54, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(55, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(56, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(57, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(58, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(59, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(60, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(46, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(47, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(48, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(49, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(50, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(51, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(52, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(53, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(54, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(55, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(56, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(57, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(58, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(59, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(60, 13) = "0"
+    
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(65, 12) = "Area"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(65, 12).Font.Bold = True
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(66, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(67, 12) = "1. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(68, 12) = "Median"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(69, 12) = "3. Quart."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(70, 12) = "Max.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(71, 12) = "Min.wert"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(72, 12) = "Minw.-1.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(73, 12) = "1.Q.-Med"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(74, 12) = "Med.-3.Q."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(75, 12) = "3.Q.-Maxw."
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(61, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(62, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(63, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(64, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(65, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(66, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(67, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(68, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(69, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(70, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(71, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(72, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(73, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(74, 13) = "0"
+    ThisWorkbook.Sheets("Gesamtauswertung").Cells(75, 13) = "0"
+    
+    'ThisWorkbook.Sheets(5).Delete
+    Application.DisplayAlerts = False
+    Dim DeleteSheets As Integer
+        DeleteSheets = 0
+    Dim AnzSheetsDelete As Integer
+        AnzSheetsDelete = ThisWorkbook.Sheets.Count - 4
+        'MsgBox "Debug: AnzSheetsDelete = " & AnzSheetsDelete
+    If AnzSheetsDelete > 0 Then
+        For DeleteSheets = 1 To AnzSheetsDelete
+            ThisWorkbook.Sheets(5).Delete
+            'MsgBox "Debug: Sheetnummer zum löschen = " & 4 + DeleteSheets
+        Next DeleteSheets
+    End If
+    Application.DisplayAlerts = True
+        
+    'ThisWorkbook.Sheets(ThisWorkbook.Sheets(5).Name).Delete
+       
+    'Dim nächsteZeile As Integer
+    '    nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row + 1
+    
+    'Dim ersteZeile As Integer
+    '    ersteZeile = 21
+        
+    'Dim fuellZeilen As Integer
+    'Dim ersteSpalte As Integer
+    '    ersteSpalte = 12
+    
+    'If kopiertesheets > 0 Then
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 1) = "Ausgewähltes Addukt"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 2) = "Theoretisch"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile - 1, 3) = "untere m/z Grenze:"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 3) = "m/z"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile - 1, 3) = "obere m/z Grenze:"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 4) = "m/z"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 5) = "Vorhanden"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 6) = "m/z"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 7) = "Intens."
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 8) = "S/N"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 9) = "Resolution"
+        'ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile, 10) = "Area"
+        'Range(Cells(ersteZeile, 1), Cells(ersteZeile, 10)).Font.Bold = True
+                        
+        'Anführungszeichen schreiben: Chr(34)
+        
+        'For fuellZeilen = 1 To kopiertesheets
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 1) = Addukt
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 2) = exMass
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 3) = "> " & exMass - massAbw + massVer
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 4) = "< " & exMass + massAbw + massVer
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 5).FormulaLocal = "=DBANZAHL($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb(ersteSpalte * fuellZeilen) & "$2000;""m/z"";$" & sb(3) & "$" & ersteZeile & ":$" & sb(4) & "$" & ersteZeile + fuellZeilen & ")"
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 6).FormulaLocal = "=WENN($" & sb(5) & ersteZeile + fuellZeilen & "=1;DBAUSZUG($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb(ersteSpalte * fuellZeilen) & "$2000;$" & sb(ersteSpalte * fuellZeilen) & "$2;$" & sb(3) & ersteZeile & ":$" & sb(4) & ersteZeile + fuellZeilen & ");$" & sb(2) & ersteZeile + fuellZeilen & ")"
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 7).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb((ersteSpalte * fuellZeilen) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen) + 2) & "$2;$" & sb(6) & ersteZeile & ":$" & sb(6) & ersteZeile + fuellZeilen & ")"
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 8).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb((ersteSpalte * fuellZeilen) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen) + 3) & "$2;$" & sb(6) & ersteZeile & ":$" & sb(6) & ersteZeile + fuellZeilen & ")"
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 9).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb((ersteSpalte * fuellZeilen) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen) + 5) & "$2;$" & sb(6) & ersteZeile & ":$" & sb(6) & ersteZeile + fuellZeilen & ")"
+        '    ThisWorkbook.Sheets("Adduktauswahl").Cells(ersteZeile + fuellZeilen, 10).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen) & "$2:$" & sb((ersteSpalte * fuellZeilen) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen) + 6) & "$2;$" & sb(6) & ersteZeile & ":$" & sb(6) & ersteZeile + fuellZeilen & ")"
+          
+        'Next fuellZeilen
+        
+    'Else
+    '    MsgBox "Es sind keine Daten vorhanden, die verarbeitet werden können. Bitte zuerst Daten importieren."
+    'End If 
+
+End Sub
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+
+
+
+
