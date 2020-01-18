@@ -1,0 +1,86 @@
+Option Explicit
+
+Sub Spotauswahlw96drei()
+    Dim i As Integer
+        i = 1
+    Dim j As Integer
+        j = 0
+    Dim ersteZeile As Integer
+        ersteZeile = 8
+        
+    Dim nächsteZeile As Integer
+        nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row + 1
+
+    Dim Strinput As String
+        Strinput = ThisWorkbook.Sheets("Datenimport").Cells(36, 6)
+    Dim Zahl As Integer
+        Zahl = Nur_Zahlen(Strinput)
+    'MsgBox "Debug: Zahl in Zelle J20 ist: " & Zahl
+    Dim Strinput2 As String
+        Strinput2 = Strinput
+
+    Dim k As Integer
+    For k = 0 To 9
+        Strinput2 = Replace(Strinput2, k, "")
+    Next
+    'MsgBox "Debug: Buchstabe in Zelle J20 ist: " & Strinput2
+        
+    Dim BuchstAlsZahl As Integer
+        BuchstAlsZahl = BuchstZahl(Strinput2)
+    'MsgBox "Debug: Zahl des Buchstaben ist: " & BuchstAlsZahl
+    
+    If BuchstAlsZahl = 0 Then
+        MsgBox "Ungültige Eingabe. Nur Buchstaben von A bis H erlaubt."
+    ElseIf Zahl < 1 Or Zahl > 12 Then
+        MsgBox "Ungültige Eingabe. Nur Zahlen von 1 bis 12 erlaubt."
+    Else
+        ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile), 2) = sb(BuchstAlsZahl * 2 - 1) & Zahl * 2 - 1
+        ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 1), 2) = sb(BuchstAlsZahl * 2 - 1) & Zahl * 2
+        ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 2), 2) = sb(BuchstAlsZahl * 2) & Zahl * 2 - 1
+        'ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 3), 2) = sb(BuchstAlsZahl * 2) & Zahl * 2
+    End If
+     
+End Sub
+
+
+Function BuchstZahl(Buchst As String) As Integer
+    Select Case Buchst
+        Case "A"
+            BuchstZahl = 1
+        Case "B"
+            BuchstZahl = 2
+        Case "C"
+            BuchstZahl = 3
+        Case "D"
+            BuchstZahl = 4
+        Case "E"
+            BuchstZahl = 5
+        Case "F"
+            BuchstZahl = 6
+        Case "G"
+            BuchstZahl = 7
+        Case "H"
+            BuchstZahl = 8
+        Case Else
+            BuchstZahl = 0
+    End Select
+End Function
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+  
+  
+Function Nur_Zahlen(ByVal strData As String) As Integer
+Dim xZeichen As Long
+Dim nurZahlen As String
+  For xZeichen = 1 To Len(strData)
+    If InStr("0123456789", Mid(strData, xZeichen, 1)) Then
+      nurZahlen = nurZahlen & Mid(strData, xZeichen, 1)
+    End If
+  Next
+Nur_Zahlen = nurZahlen
+End Function
+
+
