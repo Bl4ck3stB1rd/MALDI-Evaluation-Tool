@@ -1,0 +1,69 @@
+Option Explicit
+
+Sub Spotauswahl()
+    Dim i As Integer
+        i = 1
+    Dim j As Integer
+        j = 1
+    Dim ersteZeile As Integer
+        ersteZeile = 8
+    Dim Zeile As String
+        Zeile = ThisWorkbook.Sheets("Datenimport").Cells(27, 6)
+      
+    Dim nächsteZeile As Integer
+    '    nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row
+      
+    Dim Zeilenzahl As Integer
+        Zeilenzahl = BuchstZahl(Zeile)
+      
+    With Sheets("Datenimport")
+    If .Cells(27, 6).Value = "A" Or .Cells(13, 6).Value = "B" Or .Cells(13, 6).Value = "C" Or .Cells(13, 6).Value = "D" Or .Cells(13, 6).Value = "E" Or .Cells(13, 6).Value = "F" Or .Cells(13, 6).Value = "G" Or .Cells(13, 6).Value = "H" Then
+        For i = 1 To 12
+            nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row + 1
+            
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile), 2) = sb(Zeilenzahl * 2 - 1) & 2 * i - 1
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 1), 2) = sb(Zeilenzahl * 2) & 2 * i - 1
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 2), 2) = sb(Zeilenzahl * 2 - 1) & 2 * i
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + 3), 2) = sb(Zeilenzahl * 2) & 2 * i
+        Next i
+    Else
+        MsgBox "Eingabe ungültig. Buchstabenbereich beachten."
+    End If
+    End With
+      
+    If ThisWorkbook.Sheets("Datenimport").Cells(7, 2) > 384 Then
+        MsgBox "Anzahl der Spots ist größer als 384! Bitte Auswahl überprüfen."
+    End If
+
+End Sub
+
+Function BuchstZahl(Buchst As String) As Integer
+    Select Case Buchst
+        Case "A"
+            BuchstZahl = 1
+        Case "B"
+            BuchstZahl = 2
+        Case "C"
+            BuchstZahl = 3
+        Case "D"
+            BuchstZahl = 4
+        Case "E"
+            BuchstZahl = 5
+        Case "F"
+            BuchstZahl = 6
+        Case "G"
+            BuchstZahl = 7
+        Case "H"
+            BuchstZahl = 8
+        Case Else
+            BuchstZahl = 0
+    End Select
+End Function
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+    
+
+
