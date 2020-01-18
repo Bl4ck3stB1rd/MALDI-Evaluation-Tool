@@ -1,0 +1,679 @@
+Option Explicit
+
+Sub Adduktauswertung()
+           
+    Dim Analyt As Integer
+    Dim Analytname As String
+    Dim kopiertesheets As Variant
+    Dim Bezeichnung As String
+    Dim KationH As Double
+        KationH = 1.007825
+    Dim KationLi As Double
+        KationLi = 7.0120005
+    Dim KationNa As Double
+        KationNa = 22.989769
+    Dim KationK As Double
+        KationK = 38.963707
+    Dim KationCs As Double
+        KationCs = 132.906452
+    Dim KationNH4 As Double
+        KationNH4 = 14.003074 + 4 * KationH
+    Dim AnionO As Double
+        AnionO = 15.994915
+    Dim exMass As Double
+    Dim massVer As Double
+    Dim massAbw As Double
+    Dim Adduktzahl As Integer
+    Dim Addukt As String
+    Dim Matrix As String
+    Dim AdduktOB As String
+    Dim HinzAddukt As String
+    Dim ersteZeile As Integer
+    Dim nächsteZeile As Integer
+    Dim nächsteZeile2 As Integer
+    Dim nächsteZeile3 As Integer
+    Dim nächsteSpalte As Integer
+    Dim fuellZeilen As Integer
+    Dim ersteSpalte As Integer
+    Dim VielfachB As Integer
+    Dim AnzVielfachB As Integer
+    Dim AbszString As String
+    Dim i As Integer
+    Dim ChartNumber As Integer
+           
+Dim k As Integer
+    k = 0
+Dim j As Integer
+For j = 1 To 50
+    'Dim Analyt As Integer
+        Analyt = j + 12
+    'Dim Analytname As String
+        Analytname = ThisWorkbook.Sheets("Adduktauswahl").Cells(Analyt, 1).Value
+        
+    If ThisWorkbook.Sheets("Adduktauswahl").Cells(Analyt, 2) = "" Then
+        GoTo NextJLoop  'WEEEWOOOWEEEWOOOWEEEWOOO; hört ihr das? Das ist die Programmier-Polizei! Sie sind wegen Verwendung von GoTo festgenommen!
+                        'Leider kann man nicht mehrere Next Befehle in einer For-Schleife verwenden
+    End If
+    If ThisWorkbook.Sheets("Adduktauswahl").Cells(Analyt, 6) <> "+" Then
+        GoTo NextJLoop  'WEEEWOOOWEEEWOOOWEEEWOOO; hört ihr das? Das ist die Programmier-Polizei! Sie sind wegen Verwendung von GoTo festgenommen!
+                        'Leider kann man nicht mehrere Next Befehle in einer For-Schleife verwenden
+    End If
+      
+        kopiertesheets = ThisWorkbook.Worksheets("Adduktauswahl").Cells(1, 2)
+        Bezeichnung = ThisWorkbook.Worksheets("Adduktauswahl").Cells(Analyt, 1)
+        exMass = ThisWorkbook.Worksheets("Adduktauswahl").Cells(Analyt, 2) + KationNa - 2 * KationH
+        massVer = ThisWorkbook.Worksheets("Adduktauswahl").Cells(Analyt, 3)
+        massAbw = ThisWorkbook.Worksheets("Adduktauswahl").Cells(Analyt, 4)
+    
+        Matrix = ThisWorkbook.Worksheets("Adduktauswahl").Cells(Analyt, 5)
+        'MsgBox "Debug:" & vbCrLf & "Kopierte Sheets = " & kopiertesheets & vbCrLf & "Bezeichnung = " & Bezeichnung & vbCrLf & "Exakte Masse = " & exMass & vbCrLf & "Massenverschiebung = " & massVer & vbCrLf & "Massenabweichung = " & massAbw & vbCrLf & "Adduktbezeichnung: " & Addukt
+        Adduktzahl = ThisWorkbook.Worksheets("Adduktauswahl").Cells(2, 2)
+            
+        Addukt = "[M+Na-2H]- = [" & Bezeichnung & "+Na-2H]-"
+        AdduktOB = "[M+Na-2H]-"
+            
+        ersteZeile = 21
+        
+        nächsteZeile = ThisWorkbook.Sheets("Adduktauswahl").Cells(Rows.Count, 1).End(xlUp).Row + 1
+        If nächsteZeile < 65 Then
+           nächsteZeile = 65
+        End If
+        
+        'Ab hier: Kopie des Sheets Auswertung und Umbenennung in "Auswertung <Analytname>"
+        If TabExist(Analytname) = False Then
+            'MsgBox "Debug: Sheet existiert nicht"
+            ThisWorkbook.Sheets("Auswertung").Copy after:=ThisWorkbook.Sheets(Sheets.Count)
+            ThisWorkbook.Sheets("Auswertung (2)").Name = Analytname                             'Kopie des Auswertungs-Sheets wird benannt, wie der Analyt, der gerade verarbeitet wird
+            ThisWorkbook.Sheets("Adduktauswahl").Activate
+            ThisWorkbook.Sheets(Analytname).Range("A2:K10000").ClearContents
+            ThisWorkbook.Sheets(Analytname).Range("A2:K10000").Font.Bold = False
+            ThisWorkbook.Sheets(Analytname).Range("A2:K10000").Interior.ColorIndex = xlNone
+            ThisWorkbook.Sheets(Analytname).Cells(1, 1) = "Anzahl hinzugefügter Gruppen:"
+            ThisWorkbook.Sheets(Analytname).Cells(1, 1).Font.Bold = True
+            ThisWorkbook.Sheets(Analytname).Cells(1, 2) = "0"
+            ThisWorkbook.Sheets(Analytname).Range("M1:ASB10000").ClearContents
+        Else
+            'MsgBox "Debug: Sheet existiert"
+        End If
+        
+        If ThisWorkbook.Sheets(Analytname).Cells(5, 13) = "0" Then
+            nächsteSpalte = ThisWorkbook.Sheets(Analytname).Cells(5, Columns.Count).End(xlToLeft).Column
+        Else
+            nächsteSpalte = ThisWorkbook.Sheets(Analytname).Cells(5, Columns.Count).End(xlToLeft).Column + 1
+        End If
+    
+        ersteSpalte = 12
+        
+        VielfachB = ThisWorkbook.Worksheets("Adduktauswahl").Cells(11, 2)
+                     
+        AbszString = ""
+                                                                                  
+                     
+    If kopiertesheets > 0 Then
+        
+        If GesAusw(Addukt, exMass, massAbw, massVer, Matrix, Analyt, AdduktOB) = True Then
+            'MsgBox "Debug: Gesamtauswertung erfolgreich"
+        Else
+            'MsgBox "Debug: Gesamtauswertung fehlgeschlagen"
+        End If
+        
+        'Anführungszeichen schreiben: Chr(34)
+               
+        'Ab hier: neue Funktionen für Variable Vielfachauswertung, je nach Zelle (11, 3)
+        'VielfachB = Anzahl Spots pro Gruppe 'AnzVielfachB = Anzahl Spots / Anzahl Gruppen
+        If kopiertesheets Mod VielfachB <> 0 Then
+            MsgBox "Anzahl importierter Sheets / " & VielfachB & " ergibt keine natürliche Zahl!"
+            
+        Else
+                   
+            'Berechnung der Anzahl von Spotgruppen
+            AnzVielfachB = ThisWorkbook.Worksheets("Adduktauswahl").Cells(1, 2) / VielfachB
+            'MsgBox "Debug: AnzVielfachB = " & AnzVielfachB
+            
+            ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile - 1, 3) = "untere m/z Grenze:"
+            ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile - 1, 4) = "obere m/z Grenze:"
+            
+            For i = 0 To AnzVielfachB - 1
+            
+                'Dim nächsteZeile3 As Integer
+                nächsteZeile3 = ThisWorkbook.Sheets(Analytname).Cells(Rows.Count, 1).End(xlUp).Row + 2
+            
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 1) = "Ausgewähltes Addukt"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 2) = "Theoretisch"
+                'ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile - 1 + i * (VielfachB + 4), 3) = "untere m/z Grenze:"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 3) = "m/z"
+                'ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile - 1 + i * (VielfachB + 4), 4) = "obere m/z Grenze:"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 4) = "m/z"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 5) = "Vorhanden"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 6) = "m/z"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 7) = "Intens."
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 8) = "S/N"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 9) = "Resolution"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 10) = "Area"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + i * (VielfachB + 4), 11) = "Spot"
+                Range(Cells(nächsteZeile + i * (VielfachB + 4), 1), Cells(nächsteZeile + i * (VielfachB + 4), 11)).Font.Bold = True
+                
+                'ThisWorkbook.Sheets("Auswertung").Cells(2, 2) = Adduktzahl + 1
+                  
+                'Anführungszeichen schreiben: Chr(34)
+        
+                For fuellZeilen = 1 To VielfachB
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 1) = Addukt
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 2) = exMass
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 3) = "> " & exMass - massAbw + massVer
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 4) = "< " & exMass + massAbw + massVer
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 5).FormulaLocal = "=DBANZAHL($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2000;""m/z"";$" & sb(3) & "$" & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(4) & "$" & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 6).FormulaLocal = "=WENN($" & sb(5) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & "=1;DBAUSZUG($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2000;$" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2;$" & sb(3) & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(4) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ");$" & sb(2) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 7).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 2) & "$2;$" & sb(6) & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(6) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 8).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 3) & "$2;$" & sb(6) & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(6) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 9).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 5) & "$2;$" & sb(6) & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(6) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 10).FormulaLocal = "=DBSUMME($" & sb(ersteSpalte * fuellZeilen + i * 12 * VielfachB) & "$2:$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 6) & "$2000;$" & sb((ersteSpalte * fuellZeilen + i * 12 * VielfachB) + 6) & "$2;$" & sb(6) & nächsteZeile + i * (VielfachB + 4) & ":$" & sb(6) & nächsteZeile + fuellZeilen + i * (VielfachB + 4) & ")"
+                    ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 11) = ThisWorkbook.Sheets("Adduktauswahl").Cells(1, 2 + 12 * fuellZeilen + i * 12 * VielfachB)
+                    ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 - 1, 1) = ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 - 1, 1) & " " & ThisWorkbook.Sheets("Adduktauswahl").Cells(1, 2 + 12 * fuellZeilen + i * 12 * VielfachB)
+                                         
+                    ThisWorkbook.Sheets("Adduktauswahl").Activate
+                    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 2), Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 4)).NumberFormat = "0.000000"
+                    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 5), Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 5)).NumberFormat = "0"
+                    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 6), Cells(nächsteZeile + fuellZeilen + i * (VielfachB + 4), 10)).NumberFormat = "0.000000"
+                Next fuellZeilen
+                
+                'ab hier: Berechnungen etc. für MW, SD, RoT
+                nächsteZeile2 = ThisWorkbook.Sheets("Adduktauswahl").Cells(Rows.Count, 1).End(xlUp).Row + 1
+            
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 1) = Addukt
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 1) = Addukt
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 1) = Addukt
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 2) = "Mittelwert"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 4) = "Gefunden:"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 2) = "SD / Standardabweichung"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 2) = "Range Of Tolerance"
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2, 1), Cells(nächsteZeile2, 10)).Interior.Color = RGB(255, 255, 0)
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2 + 1, 1), Cells(nächsteZeile2 + 1, 10)).Interior.Color = RGB(173, 255, 47)
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2 + 2, 1), Cells(nächsteZeile2 + 2, 10)).Interior.Color = RGB(172, 255, 47)
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2, 1), Cells(nächsteZeile2 + 2, 10)).Font.Bold = True
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 4) = "Gefundene Peaks:"
+                'Gefundene Peaksumme und Mittelwerte:
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 5).FormulaLocal = "=SUMME($" & sb(5) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(5) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2, 5), Cells(nächsteZeile2, 5)).NumberFormat = "0"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 6).FormulaLocal = "=MITTELWERT($" & sb(6) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 7).FormulaLocal = "=MITTELWERT($" & sb(7) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 8).FormulaLocal = "=MITTELWERT($" & sb(8) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 9).FormulaLocal = "=MITTELWERT($" & sb(9) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 10).FormulaLocal = "=MITTELWERT($" & sb(10) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2, 6), Cells(nächsteZeile2, 10)).NumberFormat = "0.000000"
+                'Standardabweichungen: '=STABW(F3:F7)
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 5).FormulaLocal = "=STABW($" & sb(5) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(5) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 6).FormulaLocal = "=STABW($" & sb(6) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 7).FormulaLocal = "=STABW($" & sb(7) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 8).FormulaLocal = "=STABW($" & sb(8) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 9).FormulaLocal = "=STABW($" & sb(9) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 10).FormulaLocal = "=STABW($" & sb(10) & "$" & nächsteZeile + 1 + i * (VielfachB + 4) & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2 + 1, 5), Cells(nächsteZeile2 + 1, 10)).NumberFormat = "0.000000"
+                'Range of Tolerance: '=((6*N4)/(WURZEL(ABS($L$1)))) bzw. [3xStdfehler = (6xS/sqrt(N))]
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 5).FormulaLocal = "=((6*" & sb(5) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 6).FormulaLocal = "=((6*" & sb(6) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 7).FormulaLocal = "=((6*" & sb(7) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 8).FormulaLocal = "=((6*" & sb(8) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 9).FormulaLocal = "=((6*" & sb(9) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 10).FormulaLocal = "=((6*" & sb(10) & nächsteZeile2 + 1 & ")/(WURZEL(ABS($" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(nächsteZeile2 + 2, 5), Cells(nächsteZeile2 + 2, 10)).NumberFormat = "0.000000"
+                    
+                'Ab hier: Kopie der MW/SD/RoT Daten in jeweiliges Sheet "Analytname"
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 1) = Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 1) = Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 1) = Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 2) = "Mittelwert"
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 4) = "Gefundene Peaks:"
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 2) = "SD / Standardabweichung"
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 2) = "Range Of Tolerance"
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5, 1), Cells(nächsteZeile5, 10)).Interior.Color = RGB(255, 255, 0)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5 + 1, 1), Cells(nächsteZeile5 + 1, 10)).Interior.Color = RGB(173, 255, 47)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5 + 2, 1), Cells(nächsteZeile5 + 2, 10)).Interior.Color = RGB(172, 255, 47)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5, 1), Cells(nächsteZeile5 + 2, 10)).Font.Bold = True
+                'Gefundene Peaksumme und Mittelwerte:
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 5) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 5)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5, 5), Cells(nächsteZeile5, 5)).NumberFormat = "0"
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 6) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 6)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 7) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 7)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 8) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 8)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 9) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 9)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3, 10) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2, 10)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5, 6), Cells(nächsteZeile5, 10)).NumberFormat = "0.000000"
+                'Standardabweichungen: '=STABW(F3:F7)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 5) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 5)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 6) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 6)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 7) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 7)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 8) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 8)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 9) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 9)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 1, 10) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 1, 10)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5 + 1, 5), Cells(nächsteZeile5 + 1, 10)).NumberFormat = "0.000000"
+                'Range of Tolerance: '=((6*N4)/(WURZEL(ABS($L$1)))) bzw. [3xStdfehler = (6xS/sqrt(N))]
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 5) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 5)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 6) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 6)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 7) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 7)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 8) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 8)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 9) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 9)
+                ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 + 2, 10) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile2 + 2, 10)
+                'ThisWorkbook.Sheets(Analytname).Range(Cells(nächsteZeile5 + 2, 5), Cells(nächsteZeile5 + 2, 10)).NumberFormat = "0.000000"
+                
+                AbszString = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(10, 2) = "+" Then
+                    AbszString = ThisWorkbook.Sheets("Adduktauswahl").Cells(Analyt, 1)
+                    'MsgBox "AbszString = " & AbszString
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(6, 2) = "+" Then
+                    AbszString = AbszString & " | " & AdduktOB
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(7, 2) = "+" Then
+                    AbszString = AbszString & " | " & exMass
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(8, 2) = "+" Then
+                    AbszString = AbszString & " | " & Matrix
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(9, 2) = "+" Then
+                    AbszString = AbszString & " | " & ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                End If
+                               
+                'Ab hier: Quartil-Tabellen für Box-Plots erstellen
+                'm/z
+                ThisWorkbook.Sheets(Analytname).Cells(1, nächsteSpalte + 1 * i) = AdduktOB    'Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(2, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + 1 + i * (VielfachB + 4), 2)   'ExMass
+                ThisWorkbook.Sheets(Analytname).Cells(3, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets(Analytname).Cells(4, nächsteSpalte + 1 * i) = AbszString    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets(Analytname).Cells(5, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets(Analytname).Cells(6, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(7, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";1)"
+                ThisWorkbook.Sheets(Analytname).Cells(8, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";2)"
+                ThisWorkbook.Sheets(Analytname).Cells(9, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";3)"
+                ThisWorkbook.Sheets(Analytname).Cells(10, nächsteSpalte + 1 * i).FormulaLocal = "=MAX(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(11, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(6) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(12, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(7, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(6, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(13, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(8, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(7, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(14, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(9, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(8, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(15, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(10, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(9, nächsteSpalte + 1 * i)
+                'Intens.
+                ThisWorkbook.Sheets(Analytname).Cells(16, nächsteSpalte + 1 * i) = AdduktOB   'Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(17, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + 1 + i * (VielfachB + 4), 2)   'ExMass
+                ThisWorkbook.Sheets(Analytname).Cells(18, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets(Analytname).Cells(19, nächsteSpalte + 1 * i) = AbszString    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets(Analytname).Cells(20, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets(Analytname).Cells(21, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(22, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";1)"
+                ThisWorkbook.Sheets(Analytname).Cells(23, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";2)"
+                ThisWorkbook.Sheets(Analytname).Cells(24, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";3)"
+                ThisWorkbook.Sheets(Analytname).Cells(25, nächsteSpalte + 1 * i).FormulaLocal = "=MAX(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(26, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(7) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(27, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(22, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(21, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(28, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(23, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(22, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(29, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(24, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(23, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(30, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(25, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(24, nächsteSpalte + 1 * i)
+                'S/N
+                ThisWorkbook.Sheets(Analytname).Cells(31, nächsteSpalte + 1 * i) = AdduktOB   'Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(32, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + 1 + i * (VielfachB + 4), 2)   'ExMass
+                ThisWorkbook.Sheets(Analytname).Cells(33, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets(Analytname).Cells(34, nächsteSpalte + 1 * i) = AbszString    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets(Analytname).Cells(35, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets(Analytname).Cells(36, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(37, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";1)"
+                ThisWorkbook.Sheets(Analytname).Cells(38, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";2)"
+                ThisWorkbook.Sheets(Analytname).Cells(39, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";3)"
+                ThisWorkbook.Sheets(Analytname).Cells(40, nächsteSpalte + 1 * i).FormulaLocal = "=MAX(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(41, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(8) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(42, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(37, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(36, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(43, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(38, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(37, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(44, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(39, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(38, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(45, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(40, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(39, nächsteSpalte + 1 * i)
+                'Res.
+                ThisWorkbook.Sheets(Analytname).Cells(46, nächsteSpalte + 1 * i) = AdduktOB   'Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(47, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + 1 + i * (VielfachB + 4), 2)   'ExMass
+                ThisWorkbook.Sheets(Analytname).Cells(48, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets(Analytname).Cells(49, nächsteSpalte + 1 * i) = AbszString    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets(Analytname).Cells(50, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets(Analytname).Cells(51, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(52, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";1)"
+                ThisWorkbook.Sheets(Analytname).Cells(53, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";2)"
+                ThisWorkbook.Sheets(Analytname).Cells(54, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";3)"
+                ThisWorkbook.Sheets(Analytname).Cells(55, nächsteSpalte + 1 * i).FormulaLocal = "=MAX(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(56, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(9) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(57, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(52, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(51, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(58, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(53, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(52, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(59, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(54, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(53, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(60, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(55, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(54, nächsteSpalte + 1 * i)
+                'Area
+                ThisWorkbook.Sheets(Analytname).Cells(61, nächsteSpalte + 1 * i) = AdduktOB   'Addukt
+                ThisWorkbook.Sheets(Analytname).Cells(62, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile + 1 + i * (VielfachB + 4), 2)   'ExMass
+                ThisWorkbook.Sheets(Analytname).Cells(63, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets(Analytname).Cells(64, nächsteSpalte + 1 * i) = AbszString    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets(Analytname).Cells(65, nächsteSpalte + 1 * i) = ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets(Analytname).Cells(66, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(67, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";1)"
+                ThisWorkbook.Sheets(Analytname).Cells(68, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";2)"
+                ThisWorkbook.Sheets(Analytname).Cells(69, nächsteSpalte + 1 * i).FormulaLocal = "=QUARTILE.INKL(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ";3)"
+                ThisWorkbook.Sheets(Analytname).Cells(70, nächsteSpalte + 1 * i).FormulaLocal = "=MAX(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(71, nächsteSpalte + 1 * i).FormulaLocal = "=MIN(Adduktauswahl!$" & sb(10) & "$" & nächsteZeile + i * (VielfachB + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile + VielfachB + i * (VielfachB + 4) & ")"
+                ThisWorkbook.Sheets(Analytname).Cells(72, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(67, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(66, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(73, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(68, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(67, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(74, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(69, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(68, nächsteSpalte + 1 * i)
+                ThisWorkbook.Sheets(Analytname).Cells(75, nächsteSpalte + 1 * i).FormulaLocal = ThisWorkbook.Sheets(Analytname).Cells(70, nächsteSpalte + 1 * i) - ThisWorkbook.Sheets(Analytname).Cells(69, nächsteSpalte + 1 * i)
+            
+            Next i
+            'ThisWorkbook.Worksheets("Adduktauswahl").Cells(2, 2) = Adduktzahl + 1
+        
+        End If
+        
+    Else
+        MsgBox "Es sind keine Daten vorhanden, die verarbeitet werden können. Bitte zuerst Daten importieren."
+        GoTo SubEnd
+    End If
+    
+    k = k + 1
+
+For ChartNumber = 0 To 4
+    If UpdateChartData(Analytname, ChartNumber) = True Then
+        'MsgBox "Debug: Update der Charts erfolgreich"
+    Else
+        'MsgBox "Debug: Update der Charts fehlgeschlagen"
+    End If
+Next ChartNumber
+
+NextJLoop:
+Next j
+    
+If k = 0 Then
+    MsgBox "Es wurde kein m/z zur Auswertung angegeben. Mindestens ein m/z ist zur Auswertung notwendig."
+Else
+    ThisWorkbook.Worksheets("Adduktauswahl").Cells(2, 2) = Adduktzahl + 1
+    ThisWorkbook.Worksheets("Adduktauswahl").Cells(3, 2) = k
+End If
+
+If ThisWorkbook.Worksheets("Adduktauswahl").Cells(4, 2) = "" Then
+    HinzAddukt = ThisWorkbook.Worksheets("Adduktauswahl").Cells(4, 2) & AdduktOB
+    ThisWorkbook.Worksheets("Adduktauswahl").Cells(4, 2) = HinzAddukt
+Else
+    HinzAddukt = ThisWorkbook.Worksheets("Adduktauswahl").Cells(4, 2) & " | " & AdduktOB
+    ThisWorkbook.Worksheets("Adduktauswahl").Cells(4, 2) = HinzAddukt
+End If
+SubEnd:
+
+End Sub
+
+Function GesAusw(Addukt2 As String, ExMass2 As Double, massAbw2 As Double, massVer2 As Double, Matrix2 As String, Analyt2 As Integer, AdduktOB2 As String) As Boolean
+GesAusw = False
+            Dim i As Integer
+            'Berechnung der Anzahl von Spotgruppen
+            Dim VielfachB2 As Integer
+            VielfachB2 = ThisWorkbook.Worksheets("Adduktauswahl").Cells(1, 2)
+            Dim AnzVielfachB2 As Integer
+            AnzVielfachB2 = ThisWorkbook.Worksheets("Adduktauswahl").Cells(1, 2) / VielfachB2
+            'MsgBox "Debug: AnzVielfachB = " & AnzVielfachB
+            
+            Dim nächsteZeile5
+            nächsteZeile5 = ThisWorkbook.Sheets("Gesamtauswertung").Cells(Rows.Count, 1).End(xlUp).Row + 1
+                If nächsteZeile5 < 3 Then
+                nächsteZeile5 = 3
+            End If
+            
+            Dim ersteSpalte2 As Integer
+                ersteSpalte2 = 12
+            Dim nächsteSpalte2
+            If ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, 13) = "0" Then
+                nächsteSpalte2 = ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, Columns.Count).End(xlToLeft).Column
+            Else
+                nächsteSpalte2 = ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, Columns.Count).End(xlToLeft).Column + 1
+            End If
+    
+            
+            ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 - 1, 3) = "untere m/z Grenze:"
+            ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 - 1, 4) = "obere m/z Grenze:"
+            
+            For i = 0 To AnzVielfachB2 - 1
+            
+                'Dim nächsteZeile3 As Integer
+                '    nächsteZeile3 = ThisWorkbook.Sheets(Analytname).Cells(Rows.Count, 1).End(xlUp).Row + 2
+            
+                ThisWorkbook.Sheets("Gesamtauswertung").Activate
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 1) = "Ausgewähltes Addukt"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 2) = "Theoretisch"
+                'ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 - 1 + i * (VielfachB + 4), 3) = "untere m/z Grenze:"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 3) = "m/z"
+                'ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 - 1 + i * (VielfachB + 4), 4) = "obere m/z Grenze:"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 4) = "m/z"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 5) = "Vorhanden"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 6) = "m/z"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 7) = "Intens."
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 8) = "S/N"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 9) = "Resolution"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 10) = "Area"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + i * (VielfachB2 + 4), 11) = "Spot"
+                Range(Cells(nächsteZeile5 + i * (VielfachB2 + 4), 1), Cells(nächsteZeile5 + i * (VielfachB2 + 4), 11)).Font.Bold = True
+                
+                'ThisWorkbook.Sheets("Auswertung").Cells(2, 2) = Adduktzahl + 1
+                  
+                'Anführungszeichen schreiben: Chr(34)
+        
+                Dim fuellZeilen As Integer
+                For fuellZeilen = 1 To VielfachB2
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 1) = Addukt2
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 2) = ExMass2
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 3) = "> " & ExMass2 - massAbw2 + massVer2
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 4) = "< " & ExMass2 + massAbw2 + massVer2
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 5).FormulaLocal = "=DBANZAHL(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2000;""m/z"";$" & sb(3) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(4) & "$" & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 6).FormulaLocal = "=WENN(Gesamtauswertung!$" & sb(5) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & "=1;DBAUSZUG(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2000;Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2;$" & sb(3) & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(4) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ");$" & sb(2) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 7).FormulaLocal = "=DBSUMME(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 6) & "$2000;Adduktauswahl!$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 2) & "$2;Gesamtauswertung!$" & sb(6) & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(6) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 8).FormulaLocal = "=DBSUMME(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 6) & "$2000;Adduktauswahl!$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 3) & "$2;Gesamtauswertung!$" & sb(6) & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(6) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 9).FormulaLocal = "=DBSUMME(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 6) & "$2000;Adduktauswahl!$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 5) & "$2;Gesamtauswertung!$" & sb(6) & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(6) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 10).FormulaLocal = "=DBSUMME(Adduktauswahl!$" & sb(ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) & "$2:$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 6) & "$2000;Adduktauswahl!$" & sb((ersteSpalte2 * fuellZeilen + i * 12 * VielfachB2) + 6) & "$2;Gesamtauswertung!$" & sb(6) & nächsteZeile5 + i * (VielfachB2 + 4) & ":$" & sb(6) & nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4) & ")"
+                    ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 11) = ThisWorkbook.Sheets("Adduktauswahl").Cells(1, 2 + 12 * fuellZeilen + i * 12 * VielfachB2)
+                    'ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 - 1, 1) = ThisWorkbook.Sheets(Analytname).Cells(nächsteZeile3 - 1, 1) & " " & ThisWorkbook.Sheets("Adduktauswahl").Cells(1, 2 + 12 * fuellZeilen + i * 12 * VielfachB)
+                                         
+                    'ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 2), Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 4)).NumberFormat = "0.000000"
+                    'ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 5), Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 5)).NumberFormat = "0"
+                    'ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 6), Cells(nächsteZeile5 + fuellZeilen + i * (VielfachB2 + 4), 10)).NumberFormat = "0.000000"
+                Next fuellZeilen
+                
+                'ab hier: Berechnungen etc. für MW, SD, RoT
+                Dim nächsteZeile6 As Integer
+                    nächsteZeile6 = ThisWorkbook.Sheets("Gesamtauswertung").Cells(Rows.Count, 1).End(xlUp).Row + 1
+            
+                ThisWorkbook.Sheets("Gesamtauswertung").Activate
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 1) = Addukt2
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 1) = Addukt2
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 1) = Addukt2
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 2) = "Mittelwert"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 4) = "Gefunden:"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 2) = "SD / Standardabweichung"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 2) = "Range Of Tolerance"
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6, 1), Cells(nächsteZeile6, 10)).Interior.Color = RGB(255, 255, 0)
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6 + 1, 1), Cells(nächsteZeile6 + 1, 10)).Interior.Color = RGB(173, 255, 47)
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6 + 2, 1), Cells(nächsteZeile6 + 2, 10)).Interior.Color = RGB(172, 255, 47)
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6, 1), Cells(nächsteZeile6 + 2, 10)).Font.Bold = True
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 4) = "Gefundene Peaks:"
+                'Gefundene Peaksumme und Mittelwerte:
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 5).FormulaLocal = "=SUMME($" & sb(5) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(5) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6, 5), Cells(nächsteZeile6, 5)).NumberFormat = "0"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 6).FormulaLocal = "=MITTELWERT($" & sb(6) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 7).FormulaLocal = "=MITTELWERT($" & sb(7) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 8).FormulaLocal = "=MITTELWERT($" & sb(8) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 9).FormulaLocal = "=MITTELWERT($" & sb(9) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6, 10).FormulaLocal = "=MITTELWERT($" & sb(10) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6, 6), Cells(nächsteZeile6, 10)).NumberFormat = "0.000000"
+                'Standardabweichungen: '=STABW(F3:F7)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 5).FormulaLocal = "=STABW($" & sb(5) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(5) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 6).FormulaLocal = "=STABW($" & sb(6) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 7).FormulaLocal = "=STABW($" & sb(7) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 8).FormulaLocal = "=STABW($" & sb(8) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 9).FormulaLocal = "=STABW($" & sb(9) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 1, 10).FormulaLocal = "=STABW($" & sb(10) & "$" & nächsteZeile5 + 1 + i * (VielfachB2 + 4) & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6 + 1, 5), Cells(nächsteZeile6 + 1, 10)).NumberFormat = "0.000000"
+                'Range of Tolerance: '=((6*N4)/(WURZEL(ABS($L$1)))) bzw. [3xStdfehler = (6xS/sqrt(N))]
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 5).FormulaLocal = "=((6*" & sb(5) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 6).FormulaLocal = "=((6*" & sb(6) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 7).FormulaLocal = "=((6*" & sb(7) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 8).FormulaLocal = "=((6*" & sb(8) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 9).FormulaLocal = "=((6*" & sb(9) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(nächsteZeile6 + 2, 10).FormulaLocal = "=((6*" & sb(10) & nächsteZeile5 + 1 & ")/(WURZEL(ABS(Adduktauswahl!$" & sb(2) & "$1))))"
+                ThisWorkbook.Sheets("Gesamtauswertung").Range(Cells(nächsteZeile6 + 2, 5), Cells(nächsteZeile6 + 2, 10)).NumberFormat = "0.000000"
+                                  
+                Dim AbszString2 As String
+                AbszString2 = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(10, 2) = "+" Then
+                    AbszString2 = ThisWorkbook.Sheets("Adduktauswahl").Cells(Analyt2, 1)
+                    'MsgBox "AbszString = " & AbszString
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(6, 2) = "+" Then
+                    AbszString2 = AbszString2 & " | " & AdduktOB2
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(7, 2) = "+" Then
+                    AbszString2 = AbszString2 & " | " & ExMass2
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(8, 2) = "+" Then
+                    AbszString2 = AbszString2 & " | " & Matrix2
+                End If
+                If ThisWorkbook.Worksheets("Adduktauswahl").Cells(9, 2) = "+" Then
+                    AbszString2 = AbszString2 & " | " & "Alle Spots" 'ThisWorkbook.Sheets("Auswertung").Cells(2 + i * 4, 1)
+                End If
+                               
+                'Ab hier: Quartil-Tabellen für Box-Plots erstellen
+                'm/z
+                'ThisWorkbook.Sheets("Gesamtauswertung").Activate
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(1, nächsteSpalte2 + 1 * i) = AdduktOB2    'Addukt
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(2, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile5 + 1 + i * (VielfachB2 + 4), 2)   'ExMass
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(3, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(4, nächsteSpalte2 + 1 * i) = AbszString2    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(5, nächsteSpalte2 + 1 * i) = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(6, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";1)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(8, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";2)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(9, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";3)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(10, nächsteSpalte2 + 1 * i).FormulaLocal = "=MAX($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(11, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(6) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(6) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(12, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(6, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(13, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(8, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(7, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(14, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(9, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(8, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(15, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(10, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(9, nächsteSpalte2 + 1 * i)
+                'Intens.
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(16, nächsteSpalte2 + 1 * i) = AdduktOB2   'Addukt
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(17, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile5 + 1 + i * (VielfachB2 + 4), 2)   'ExMass
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(18, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(19, nächsteSpalte2 + 1 * i) = AbszString2    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(20, nächsteSpalte2 + 1 * i) = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(21, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(22, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";1)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(23, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";2)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(24, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";3)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(25, nächsteSpalte2 + 1 * i).FormulaLocal = "=MAX($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(26, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(7) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(7) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(27, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(22, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(21, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(28, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(23, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(22, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(29, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(24, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(23, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(30, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(25, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(24, nächsteSpalte2 + 1 * i)
+                'S/N
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(31, nächsteSpalte2 + 1 * i) = AdduktOB2   'Addukt
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(32, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile5 + 1 + i * (VielfachB2 + 4), 2)   'ExMass
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(33, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(34, nächsteSpalte2 + 1 * i) = AbszString2    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(35, nächsteSpalte2 + 1 * i) = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(36, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(37, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";1)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(38, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";2)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(39, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";3)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(40, nächsteSpalte2 + 1 * i).FormulaLocal = "=MAX($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(41, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(8) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(8) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(42, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(37, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(36, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(43, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(38, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(37, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(44, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(39, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(38, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(45, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(40, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(39, nächsteSpalte2 + 1 * i)
+                'Res.
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(46, nächsteSpalte2 + 1 * i) = AdduktOB2   'Addukt
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(47, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile5 + 1 + i * (VielfachB2 + 4), 2)   'ExMass
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(48, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(49, nächsteSpalte2 + 1 * i) = AbszString2    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(50, nächsteSpalte2 + 1 * i) = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(51, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(52, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";1)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(53, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";2)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(54, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";3)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(55, nächsteSpalte2 + 1 * i).FormulaLocal = "=MAX($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(56, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(9) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(57, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(52, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(51, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(58, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(53, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(52, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(59, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(54, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(53, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(60, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(55, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(54, nächsteSpalte2 + 1 * i)
+                'Area
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(61, nächsteSpalte2 + 1 * i) = AdduktOB2   'Addukt
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(62, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(nächsteZeile5 + 1 + i * (VielfachB2 + 4), 2)   'ExMass
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(63, nächsteSpalte2 + 1 * i) = ThisWorkbook.Sheets("Adduktauswahl").Cells(13, 5)    'Matrix
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(64, nächsteSpalte2 + 1 * i) = AbszString2    'String für Diagramm-Abszisse
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(65, nächsteSpalte2 + 1 * i) = "Alle Spots" 'ThisWorkbook.Sheets(Analytname).Cells(2 + i * 4, 1)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(66, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(9) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(67, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";1)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(68, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";2)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(69, nächsteSpalte2 + 1 * i).FormulaLocal = "=QUARTILE.INKL($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ";3)"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(70, nächsteSpalte2 + 1 * i).FormulaLocal = "=MAX($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(71, nächsteSpalte2 + 1 * i).FormulaLocal = "=MIN($" & sb(10) & "$" & nächsteZeile5 + i * (VielfachB2 + 4) + 1 & ":$" & sb(10) & "$" & nächsteZeile5 + VielfachB2 + i * (VielfachB2 + 4) & ")"
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(72, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(67, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(66, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(73, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(68, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(67, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(74, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(69, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(68, nächsteSpalte2 + 1 * i)
+                ThisWorkbook.Sheets("Gesamtauswertung").Cells(75, nächsteSpalte2 + 1 * i).FormulaLocal = ThisWorkbook.Sheets("Gesamtauswertung").Cells(70, nächsteSpalte2 + 1 * i) - ThisWorkbook.Sheets("Gesamtauswertung").Cells(69, nächsteSpalte2 + 1 * i)
+            
+            Next i
+            
+Dim Analytname3 As String
+Dim ChartNumber2 As Integer
+For ChartNumber2 = 0 To 4
+    Analytname3 = "Gesamtauswertung"
+    If UpdateChartData(Analytname3, ChartNumber2) = True Then
+        'MsgBox "Debug: Update der Charts Gesamtauswertung erfolgreich"
+    Else
+        'MsgBox "Debug: Update der Charts Gesamtauswertung fehlgeschlagen"
+    End If
+Next ChartNumber2
+
+
+GesAusw = True
+End Function
+
+
+Function UpdateChartData(Analytname2 As String, ChartNumber2 As Integer) As Boolean
+    UpdateChartData = False
+    
+    Dim AnzColumns As Integer
+    AnzColumns = ThisWorkbook.Sheets(Analytname2).Cells(19, Columns.Count).End(xlToLeft).Column - 12
+    'MsgBox "Debug: Belegte Spalten in Quartil-Tabellen: " & AnzColumns
+    Dim LastColumn As Integer
+    LastColumn = 13 + AnzColumns - 1
+    'MsgBox "Debug: Letzte belegte Spalte in Quartil-Tabellen: " & LastColumn
+        
+    With Worksheets(Analytname2).ChartObjects(ChartNumber2 + 1).Chart
+        .SeriesCollection(1).Values = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 11 & "C13:R" & ChartNumber2 * 15 + 11 & "C" & LastColumn
+        .SeriesCollection(1).XValues = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 4 & "C13:R" & ChartNumber2 * 15 + 4 & "C" & LastColumn
+        .SeriesCollection(2).Values = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 12 & "C13:R" & ChartNumber2 * 15 + 12 & "C" & LastColumn
+        .SeriesCollection(2).XValues = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 4 & "C13:R" & ChartNumber2 * 15 + 4 & "C" & LastColumn
+        .SeriesCollection(3).Values = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 13 & "C13:R" & ChartNumber2 * 15 + 13 & "C" & LastColumn
+        .SeriesCollection(3).XValues = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 4 & "C13:R" & ChartNumber2 * 15 + 4 & "C" & LastColumn
+        .SeriesCollection(4).Values = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 14 & "C13:R" & ChartNumber2 * 15 + 14 & "C" & LastColumn
+        .SeriesCollection(4).XValues = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 4 & "C13:R" & ChartNumber2 * 15 + 4 & "C" & LastColumn
+        .SeriesCollection(5).Values = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 15 & "C13:R" & ChartNumber2 * 15 + 15 & "C" & LastColumn
+        .SeriesCollection(5).XValues = "='" & Analytname2 & "'!R" & ChartNumber2 * 15 + 4 & "C13:R" & ChartNumber2 * 15 + 4 & "C" & LastColumn
+    End With
+    
+    UpdateChartData = True
+End Function
+
+
+Function TabExist(Analytname2 As String) As Boolean
+    Dim ws As Worksheet
+    TabExist = False
+    For Each ws In ActiveWorkbook.Sheets
+        If ws.Name = Analytname2 Then
+            TabExist = True
+        End If
+    Next ws
+End Function
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+
+
