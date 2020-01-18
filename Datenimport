@@ -1,0 +1,235 @@
+Option Explicit
+
+'Gesamtablauf des Importprogramms steuern
+Sub Importieren()
+    If dateinamepruefen = False Then
+        Exit Sub
+    End If
+    If methodennamepruefen = False Then
+        Exit Sub
+    End If
+    
+    Dim dateinameExtern As Variant                                          'Abruf des Dateinamen der Importdatei in B3
+    dateinameExtern = dateiname
+    'MsgBox "Debug: Dateiname lautet " & dateiname2
+    Dim methodennameExtern As Variant                                       'Abruf des Methodennamens in FlexAnalysis in B2
+    methodennameExtern = methodenname
+    'MsgBox "Debug: Methodenname lautet " & methodenname2
+    Dim importpfadExtern As Variant                                         'Abruf des Ordnerpfads, in der die Importdatei liegt, aus B4
+    importpfadExtern = importpfad
+    'MsgBox "Debug: Importpfad lautet " & importpfad2
+    
+    Dim dateinameSelf As Variant                                            'Liest den Dateinamen der selben Excel-Datei (in der das Makro gestartet wird)
+    dateinameSelf = ThisWorkbook.Name
+    'MsgBox "Debug: DateinameSelf = " & dateinameSelf
+    Dim sheetnameSelf As Variant                                            'Liest den Namen des aktiven Sheets (in dem das Makro gestartet wird)
+    sheetnameSelf = ActiveSheet.Name
+    'MsgBox "Debug: SheetnameSelf = " & sheetnameSelf
+    
+    Dim kopiertesheets2 As Integer                                          'Variable die nach Ablauf aller Datenimporte mit der Anzahl der kopierten Sheets gefüllt wird. Weiterverarbeitung in Funktionen für die folgenden Berechnungen und Auswertungen
+    kopiertesheets2 = 0
+    
+    Dim exceloeffnen2 As Boolean
+    exceloeffnen2 = exceloeffnen(importpfadExtern, dateinameExtern)
+        If exceloeffnen2 = True Then
+            'MsgBox "Debug: Excel-Datei geöffnet?"
+            
+            kopiertesheets2 = Spotauswahl(dateinameExtern, methodennameExtern, dateinameSelf, sheetnameSelf)
+            'MsgBox "Debug: Anzahl kopierter Sheets = " & kopiertesheets2
+                              
+        Else
+            MsgBox "Fehler beim Öffnen der Excel-Datei. Dateiname- und Pfad überprüfen."
+            Exit Sub
+        End If
+    
+End Sub
+
+'Prüfen ob Dateiname angegeben wurde
+Function dateinamepruefen() As Boolean                                                                                                  'Sub funktioniert
+    Dim dateiname2 As Variant
+        'dateiname = Workbooks(ThisWorkbook.Name).Worksheets(ThisWorkbook.ActiveSheet).Cells(3, 2)                      'B3 'Cells(Zeile, Spalte)
+        dateiname2 = ActiveSheet.Cells(3, 2).Text
+        'MsgBox "Debug: Der Dateiname lautet: " & dateiname
+        
+    If dateiname2 = "" Then
+        MsgBox """B3"" ist leer! Bitte Name der Excel-Datei angeben, in der die Rohdaten gespeichert sind."
+        dateinamepruefen = False
+    Else
+        dateinamepruefen = True
+    End If
+    
+End Function
+
+'Prüfen ob Methodenname angegeben wurde
+Function methodennamepruefen() As Boolean                                                                                               'Sub funktioniert
+    Dim methodennamepruefen2 As Variant
+        'methodennamepruefen = Workbooks(ThisWorkbook.Name).Worksheets(ThisWorkbook.ActiveSheet).Cells(2, 2)            'B2 'Cells(Zeile, Spalte)
+        methodennamepruefen2 = ActiveSheet.Cells(2, 2)
+        'MsgBox "Debug: Der Methodenname lautet: " & methodennamepruefen
+        
+    If methodennamepruefen2 = "" Then
+        MsgBox """B2"" ist leer! Bitte Name der Flex-Analysis Messprozedur/der Methode angeben."
+        methodennamepruefen = False
+    Else
+        methodennamepruefen = True
+    End If
+    
+End Function
+
+'Dateiname aus Zelle lesen und übergeben
+Function dateiname() As Variant
+         dateiname = ActiveSheet.Cells(3, 2).Text
+End Function
+
+'Methodenname aus Zelle lesen und übergeben
+Function methodenname() As Variant
+         methodenname = ActiveSheet.Cells(2, 2).Text
+End Function
+
+'Import-Dateipfad aus Zelle lesen und übergeben
+Function importpfad() As Variant
+         importpfad = ActiveSheet.Cells(4, 2).Text
+End Function
+
+'Pfad auslesen mit Benutzeroberfläche (Ordnerauswahl)
+'Sub PfadAuslesen()
+'    Dim strDateiname As String
+'    Dim strPfad As String
+   
+'    With Application.Dialogs(wdDialogFileOpen)
+'        If .Display = -1 Then
+'            strDateiname = .Name
+'        End If
+'    End With
+'    strPfad = CurDir
+'    MsgBox "Ausgewählte Datei: " & strDateiname & vbCrLf & _
+'        "Ausgewählter Pfad: " & strPfad
+'End Sub
+
+'Excel Importdatei öffnen
+Function exceloeffnen(importpfad As Variant, dateiname As Variant) As Boolean       'Funktionen dateiname und importpfad für Übergabewerte beachten
+    Dim AppExc As Object
+    Set AppExc = CreateObject("Excel.Application")                                  'Excel als Object starten
+    AppExc.Visible = True
+        If importpfad = "" Then
+            'MsgBox "Debug exceloeffnen if empty: " & importpfad
+            Workbooks.Open Filename:=ActiveWorkbook.Path & "\" & dateiname          'öffnet die Importdaten-Excel-Datei im _selben Verzeichnis_
+        ElseIf importpfad <> "" Then
+            'MsgBox "Debug exceloeffnen if not empty: " & importpfad
+            Workbooks.Open Filename:=importpfad & "\" & dateiname                   'öffnet die Importdaten-Excel-Datei im angegebenen Verzeichnis
+        End If
+    exceloeffnen = True
+End Function
+
+Public Function WorkSheetExists(ByVal strName As String) As Boolean
+   On Error Resume Next
+   WorkSheetExists = Not Worksheets(strName) Is Nothing
+End Function
+
+Function Spotauswahl(dateinameExtern As Variant, methodennameExtern As Variant, dateinameSelf As Variant, sheetnameSelf As Variant) As Integer
+    Dim zaehlermax As Integer
+    zaehlermax = 0
+    Dim kopiertesheets As Integer
+    kopiertesheets = Workbooks(dateinameSelf).Sheets("Adduktauswahl").Cells(1, 2)
+    Dim sheetzaehler As Integer
+    Dim sheetzaehlerExist As Integer
+    Dim sheetsnonexistent As String
+        sheetsnonexistent = ""
+    
+    For sheetzaehlerExist = 9 To 392
+        If Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("B" & sheetzaehlerExist).Value = "" Then
+            'nichts machen; else-Zweig wird nicht aufgerufen, da if bereits erfüllt wurde
+        Else 'If Not WorkSheetExist(methodennameExtern)
+            Dim spotExist As Variant
+                spotExist = Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("B" & sheetzaehlerExist).Value
+            Dim sheetExist As Variant
+                sheetExist = Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("C" & sheetzaehlerExist).Value
+            If Not WorkSheetExists(sheetExist) Then
+                sheetsnonexistent = sheetsnonexistent + " " + spotExist
+            End If
+        End If
+    Next sheetzaehlerExist
+    If sheetsnonexistent <> "" Then
+        MsgBox "Für folgende zum Datenimport ausgewählte Spots wurde kein zugehöriges Tabellenblatt in der Quelldatei gefunden:" & sheetsnonexistent & ". Bitte Quelldatei überprüfen. Der Datenimport wird abgebrochen."
+        GoTo Spotsfehlen
+    End If
+    
+    For sheetzaehler = 9 To 392                                                                                         'Spalte B wird ab B9 bis B392 durchlaufen und geprüft ob die Zelle leer ist oder einen Inhalt hat
+        If Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("B" & sheetzaehler).Value = "" Then
+            'nichts machen; else-Zweig wird nicht aufgerufen, da if bereits erfüllt wurde                               'Wenn Zelle leer, dann Beendigung der For-Schleife
+        Else                                                                                                            'Wenn Zelle Inhalt hat: spot und sheet-Bezeichnung aus der Zeile lesen und in Variablen speichern
+            Dim spot As Variant
+                spot = Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("B" & sheetzaehler).Value
+            Dim sheet As Variant
+                sheet = Workbooks(dateinameSelf).Worksheets(sheetnameSelf).Range("C" & sheetzaehler).Value
+            zaehlermax = zaehlermax + 1
+            'MsgBox "Debug: " & zaehlermax & ". angegebener Spot: " & spot & " " & sheet & " in " & sheetzaehler - 8 & ". Zeile"
+                    
+            If datenkopieren(dateinameExtern, methodennameExtern, dateinameSelf, sheetnameSelf, zaehlermax, spot, sheet) = True Then            'Aufruf der Function "datenkopieren" und Übergabe der Spot- und Sheet-Bezeichnung
+            'If datenkopieren = True Then
+                kopiertesheets = kopiertesheets + 1
+            
+            
+            End If
+                                        
+        End If
+    Next sheetzaehler
+    
+    If zaehlermax = 0 Then
+        MsgBox "Keine Spots angebegeben. Es muss mindestens ein Spot zum Datenimport angegeben werden."                 'Rückmeldung für den Benutzer: Es wurden keine Spots eingegeben
+    Else
+        MsgBox "Es wurden Daten von " & zaehlermax & " Spots importiert"                                                'Rückmeldung für den Benutzer: Anzahl der importierten Spot-Daten
+        Workbooks(dateinameSelf).Sheets("Adduktauswahl").Cells(1, 2) = kopiertesheets
+    End If
+Spotsfehlen:
+Spotauswahl = kopiertesheets
+End Function
+
+Function datenkopieren(dateinameExtern2 As Variant, methodennameExtern2 As Variant, dateinameSelf2 As Variant, sheetnameSelf2 As Variant, zaehlermax2 As Integer, spot2 As Variant, sheet2 As Variant) As Boolean
+    Dim numbColumns As Integer                                                                                                          'im ersten kopierten sheet soll in Spalte 12 begonnen werden
+        numbColumns = Workbooks(dateinameExtern2).Sheets(sheet2).UsedRange.Columns.Count
+        'numbColumns = 11
+    Dim naechstespalte As Integer                                                                                                       'bei jedem nächsten Sheet wird naechstespalte = naechstespalte + 12
+        naechstespalte = numbColumns + 1
+    Dim belegteSpalten As Integer
+        belegteSpalten = Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(3, Columns.Count).End(xlToLeft).Column + 2
+        If belegteSpalten < 12 Then
+            belegteSpalten = 12
+        End If
+        
+    
+    
+        
+        'Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Range(Cells(3, naechstespalte * zaehlermax2), Cells(2000, naechstespalte * zaehlermax2 + 11)).ClearContents
+        
+        'Bildschirmaktualisierung ausschalten
+        Application.ScreenUpdating = False
+        
+        Dim numbRows As Integer
+        numbRows = Workbooks(dateinameExtern2).Sheets(sheet2).UsedRange.Rows.Count
+        'MsgBox "Debug: Anzahl der Zeilen = " & numbRows
+        Workbooks(dateinameExtern2).Sheets(sheet2).UsedRange.Offset(3, 0).Resize(numbRows - 3, 11).Copy
+        Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(3, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2).PasteSpecial
+        Application.CutCopyMode = False
+        
+        If Workbooks(dateinameExtern2).Sheets(sheet2).Cells(4, 1) = "" Then
+            Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(3, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2 + 10) = "0"
+        End If
+        
+        'Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(1, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2) = zaehlermax2 & ". Replikation"
+        Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(1, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2 + 2) = spot2
+                
+        Dim m As Integer
+        For m = 0 To 10
+            Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(2, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2 + m).Font.Bold = True
+            Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Cells(2, belegteSpalten - 12 * zaehlermax2 + naechstespalte * zaehlermax2 + m).Interior.Color = RGB(176, 226, 255)
+        Next m
+        
+        datenkopieren = True
+    
+        'Bildschirmaktualisierung einschalten
+        Application.ScreenUpdating = True
+    
+End Function
+
+
