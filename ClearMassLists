@@ -1,0 +1,44 @@
+Option Explicit
+
+Sub Massenlistenleeren()
+    
+    Dim ersteSpalte As Integer
+        ersteSpalte = 12
+    Dim letzteSpalte As Integer
+        letzteSpalte = ThisWorkbook.Sheets("Adduktauswahl").Cells(3, Columns.Count).End(xlToLeft).Column + 1
+    If letzteSpalte < ersteSpalte Then
+        letzteSpalte = 23
+    End If
+    'MsgBox "Debug: letzte belegte Spalte = " & sb(letzteSpalte)
+        
+    Dim AnzSpots As Integer
+        AnzSpots = (letzteSpalte - 11) / 12
+    'MsgBox "Debug: AnzSpots = " & AnzSpots
+        
+    Dim i As Integer
+        
+    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(3, ersteSpalte), Cells(2000, ersteSpalte * AnzSpots + 10)).ClearContents
+    ThisWorkbook.Sheets("Adduktauswahl").Range("L1:XFD1").ClearContents
+        
+    'For i = 1 To AnzSpots
+    
+    '    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(3, ersteSpalte * i), Cells(2000, ersteSpalte * i + 10)).ClearContents
+    '    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(3, ersteSpalte * i), Cells(2000, ersteSpalte * i + 10)).Font.Bold = False
+    '    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(2, ersteSpalte * i), Cells(2000, ersteSpalte * i + 10)).Interior.Color = RGB(176, 226, 255)
+    '    ThisWorkbook.Sheets("Adduktauswahl").Range(Cells(2, ersteSpalte * i), Cells(2000, ersteSpalte * i + 10)).Borders.LineStyle = xlNone
+    
+    'Next i
+    
+    ThisWorkbook.Sheets("Adduktauswahl").Cells(1, 2) = "0"
+
+End Sub
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+
+
+
+
+
+
