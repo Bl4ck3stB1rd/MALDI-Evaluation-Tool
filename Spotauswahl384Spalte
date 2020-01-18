@@ -1,0 +1,37 @@
+Option Explicit
+
+Sub Spotauswahl()
+    Dim i As Integer
+        i = 1
+    Dim j As Integer
+        j = 1
+    Dim ersteZeile As Integer
+        ersteZeile = 8
+    Dim Spalte As Integer
+        Spalte = ThisWorkbook.Sheets("Datenimport").Cells(16, 6)
+    
+    Dim nächsteZeile As Integer
+        nächsteZeile = ThisWorkbook.Sheets("Datenimport").Cells(Rows.Count, 2).End(xlUp).Row
+       
+    If Spalte > 24 Then
+        MsgBox "Eingabe ungültig. Zahlenbereich beachten."
+    ElseIf Spalte < 1 Then
+        MsgBox "Eingabe ungültig. Zahlenbereich beachten."
+    Else
+        For j = 1 To 16
+            ThisWorkbook.Sheets("Datenimport").Cells((nächsteZeile + j), 2) = sb(j) & Spalte
+        Next j
+    End If
+      
+    If ThisWorkbook.Sheets("Datenimport").Cells(7, 2) > 384 Then
+        MsgBox "Anzahl der Spots ist größer als 384! Bitte Auswahl überprüfen."
+    End If
+
+End Sub
+
+
+Function sb(spaltenzahl As Integer) As String
+    sb = Split(Cells(1, spaltenzahl).Address, "$")(1)
+End Function
+    
+
