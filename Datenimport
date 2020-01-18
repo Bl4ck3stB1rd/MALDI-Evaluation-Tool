@@ -196,10 +196,7 @@ Function datenkopieren(dateinameExtern2 As Variant, methodennameExtern2 As Varia
         If belegteSpalten < 12 Then
             belegteSpalten = 12
         End If
-        
-    
-    
-        
+                
         'Workbooks(dateinameSelf2).Sheets("Adduktauswahl").Range(Cells(3, naechstespalte * zaehlermax2), Cells(2000, naechstespalte * zaehlermax2 + 11)).ClearContents
         
         'Bildschirmaktualisierung ausschalten
